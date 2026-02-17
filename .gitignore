@@ -17,8 +17,14 @@ pnpm-debug.log*
 .env
 .env.production
 
+raw-response.json
+.cache/
+
 # macOS-specific files
 .DS_Store
 
 # jetbrains setting folder
 .idea/
+
+.claude
+.agents

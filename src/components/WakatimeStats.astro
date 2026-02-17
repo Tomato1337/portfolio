@@ -1,0 +1,49 @@
+---
+import { fetchWakatimeStats } from '../lib/wakatime'
+import { useTranslations } from '../i18n/utils'
+
+const stats = await fetchWakatimeStats()
+const t = useTranslations(Astro.currentLocale)
+---
+
+<div class="glass-panel space-y-5 p-6">
+    <div class="flex flex-wrap items-start justify-between gap-3">
+        <div class="space-y-1">
+            <p class="mono-font text-xs text-muted">coding_stats[]</p>
+            <p class="text-base font-semibold text-foreground md:text-lg">
+                {t.wakatime.totalTime}: {stats.totalHours}
+            </p>
+        </div>
+        <a
+            href="https://wakatime.com/@Tomato1337"
+            target="_blank"
+            rel="noreferrer"
+            class="mono-font text-xs text-accent transition hover:text-accent-strong"
+        >
+            @Tomato1337
+        </a>
+    </div>
+
+    <div class="space-y-3">
+        {
+            stats.languages.map((language) => (
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between gap-3">
+                        <span class="mono-font text-sm text-content">
+                            {language.name}
+                        </span>
+                        <span class="mono-font text-xs text-muted">
+                            {language.hours} • {language.percent.toFixed(2)}%
+                        </span>
+                    </div>
+                    <div class="progress-track">
+                        <div
+                            class="progress-bar"
+                            style={`--progress:${Math.max(2, Math.min(language.percent, 100))}%;`}
+                        />
+                    </div>
+                </div>
+            ))
+        }
+    </div>
+</div>

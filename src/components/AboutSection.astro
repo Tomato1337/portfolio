@@ -1,0 +1,164 @@
+---
+import GradientText from './GradientText.astro'
+import WakatimeStats from './WakatimeStats.astro'
+import { useTranslations } from '../i18n/utils'
+
+const t = useTranslations(Astro.currentLocale)
+
+const skillGroups = [
+    {
+        title: 'frontend[]',
+        items: [
+            'Next.js',
+            'React',
+            'TypeScript',
+            'FSD',
+            'TanStack Query',
+            'TanStack Router',
+            'Zustand',
+            'Tailwind CSS',
+            'shadcn/ui',
+            'React Hook Form',
+            'Zod',
+            'Nuqs',
+            'Figma',
+            'Redux Toolkit',
+        ],
+    },
+    {
+        title: 'async_data[]',
+        items: [
+            'Long Polling',
+            'SSE',
+            '@tanstack/react-virtual',
+            'IndexedDB',
+            'Web Workers',
+            'Service Worker',
+            'Presigned URLs',
+            'local-first pipeline',
+            'Cache & Revalidate',
+            'SQL',
+        ],
+    },
+    {
+        title: 'backend_infra[]',
+        items: [
+            'Node.js',
+            'Nest.js',
+            'Fastify',
+            'BullMQ',
+            'Redis',
+            'PostgreSQL',
+            'Prisma',
+            'MongoDB',
+            'Docker',
+            'Docker Compose',
+            'Nginx',
+            'MinIO (S3)',
+            'OCR/NLP pipelines',
+            'Telegram Auth',
+            'Gemini API',
+            'Linux',
+            'Git',
+            'GitHub',
+            'GitLab',
+            'GitHub Actions',
+        ],
+    },
+]
+---
+
+<section id="about" class="fullpage-section fp-scrollable">
+    <div class="fp-outer">
+        <div class="fp-inner">
+            <div class="fp-bg">
+                <div class="section-shell w-full pt-24 pb-16 md:pt-32 md:pb-24">
+                    <div class="space-y-8">
+                        <div class="space-y-4 reveal">
+                            <p
+                                class="mono-font text-sm font-semibold tracking-wide text-accent"
+                            >
+                                cat about.md
+                            </p>
+                            <h2
+                                class="text-4xl font-black tracking-tight text-foreground md:text-5xl"
+                            >
+                                {t.about.headingPrefix}
+                                <GradientText className="inline-block">
+                                    {t.about.headingAccent}
+                                </GradientText>
+                            </h2>
+                            <p
+                                class="max-w-3xl text-lg leading-relaxed text-muted"
+                            >
+                                {t.about.description}
+                            </p>
+                        </div>
+
+                        <div class="grid gap-5 lg:grid-cols-3">
+                            {
+                                skillGroups.map((group) => (
+                                    <article class="glass-panel reveal space-y-4 p-6">
+                                        <p class="mono-font text-xs text-muted">
+                                            {group.title}
+                                        </p>
+                                        <div class="flex flex-wrap gap-2">
+                                            {group.items.map((item) => (
+                                                <span class="chip-compact">
+                                                    {item}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </article>
+                                ))
+                            }
+                        </div>
+
+                        <div class="reveal">
+                            <WakatimeStats server:defer>
+                                <div
+                                    slot="fallback"
+                                    class="glass-panel space-y-5 p-6"
+                                >
+                                    <div class="space-y-1">
+                                        <p class="mono-font text-xs text-muted">
+                                            coding_stats[]
+                                        </p>
+                                        <p
+                                            class="text-base font-semibold text-foreground md:text-lg"
+                                        >
+                                            {t.about.wakatimeLoading}
+                                        </p>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div class="progress-track">
+                                            <div
+                                                class="progress-bar"
+                                                style="--progress:64%;"
+                                            >
+                                            </div>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div
+                                                class="progress-bar"
+                                                style="--progress:42%;"
+                                            >
+                                            </div>
+                                        </div>
+                                        <div class="progress-track">
+                                            <div
+                                                class="progress-bar"
+                                                style="--progress:25%;"
+                                            >
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </WakatimeStats>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

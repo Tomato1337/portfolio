@@ -1,0 +1,119 @@
+---
+import jsIcon from '../assets/js.svg'
+import tsIcon from '../assets/ts.svg'
+import nodeIcon from '../assets/node.svg'
+import reactIcon from '../assets/react.svg'
+---
+
+<div
+    class="hidden sm:flex relative h-[500px] w-full items-center justify-center lg:h-[700px] lg:w-1/2"
+    data-parallax-speed="1.5"
+>
+    <div
+        class="relative h-[300px] w-[300px] md:h-[350px] md:w-[350px] lg:h-[400px] lg:w-[400px]"
+    >
+        <div
+            class="absolute inset-0 animate-[spin_10s_linear_infinite] rounded-full border border-border-soft/60"
+        >
+        </div>
+        <div
+            class="absolute -inset-8 animate-[spin_15s_linear_infinite_reverse] rounded-full border border-border-soft/40"
+        >
+        </div>
+
+        <div
+            class="tomato-body absolute inset-0 z-20 flex items-center justify-center rounded-[58%_42%_54%_46%/48%_44%_56%_52%] animate-morph transition-transform duration-500 hover:scale-105"
+        >
+            <div
+                class="tomato-shine absolute top-[20%] right-[25%] h-8 w-16 -rotate-45 rounded-full blur-md"
+            >
+            </div>
+            <div
+                class="tomato-shadow absolute bottom-[20%] left-[25%] h-24 w-24 rounded-full blur-xl mix-blend-multiply"
+            >
+            </div>
+        </div>
+
+        <div class="absolute -top-8 left-1/2 z-30 -translate-x-1/2">
+            <div
+                class="tomato-leaf-primary h-20 w-20 -rotate-45 rounded-tr-[100%] rounded-bl-[100%] shadow-lg"
+            >
+            </div>
+            <div
+                class="tomato-leaf-secondary absolute top-2 left-4 h-16 w-16 rotate-12 rounded-tr-[100%] rounded-bl-[100%] shadow-lg"
+            >
+            </div>
+        </div>
+
+        <div
+            class="glass-card animate-float-medium absolute -right-8 top-10 z-40 hidden w-48 p-4 md:block"
+            data-parallax-speed="0.6"
+        >
+            <div class="mb-2 flex gap-2">
+                <div class="h-2 w-2 rounded-full bg-accent"></div>
+                <div class="code-dot-warm h-2 w-2 rounded-full"></div>
+                <div class="h-2 w-2 rounded-full bg-success"></div>
+            </div>
+            <div class="mono-font space-y-1 text-[10px] text-muted">
+                <p>
+                    <span class="text-code-keyword">const</span>
+                    <span class="text-code-identifier">portfolio</span> = {`{`}
+                </p>
+                <p class="pl-2">
+                    name: <span class="text-code-string">'Tomato'</span>,
+                </p>
+                <p class="pl-2">
+                    role: <span class="text-code-string">'Dev'</span>,
+                </p>
+                <p class="pl-2">
+                    level: <span class="text-accent-warm">9000</span>
+                </p>
+                <p>{`}`}</p>
+            </div>
+        </div>
+
+        <div
+            class="animate-float-fast absolute -left-3 bottom-20 z-40"
+            data-parallax-speed="0.8"
+        >
+            <div
+                class="glass-card flex h-16 w-16 items-center justify-center rounded-2xl shadow-lg transition-transform hover:scale-110"
+            >
+                <img src={reactIcon.src} alt="React" class="h-8 w-8" />
+            </div>
+        </div>
+
+        <div
+            class="animate-float-slow absolute right-10 -bottom-4 z-40"
+            data-parallax-speed="0.7"
+        >
+            <div
+                class="glass-card flex h-14 w-14 items-center justify-center rounded-2xl shadow-lg transition-transform hover:scale-110"
+            >
+                <img src={jsIcon.src} alt="JavaScript" class="h-7 w-7" />
+            </div>
+        </div>
+
+        <div
+            class="animate-float-medium absolute -left-12 top-1/2 z-10 hidden lg:block"
+            data-parallax-speed="0.9"
+        >
+            <div
+                class="glass-card flex h-12 w-12 items-center justify-center rounded-xl shadow-lg"
+            >
+                <img src={tsIcon.src} alt="TypeScript" class="h-6 w-6" />
+            </div>
+        </div>
+
+        <div
+            class="animate-float-fast absolute -right-4 top-1/2 z-30 hidden md:block"
+            data-parallax-speed="0.65"
+        >
+            <div
+                class="glass-card flex h-12 w-12 items-center justify-center rounded-xl shadow-lg"
+            >
+                <img src={nodeIcon.src} alt="Node.js" class="h-6 w-6" />
+            </div>
+        </div>
+    </div>
+</div>

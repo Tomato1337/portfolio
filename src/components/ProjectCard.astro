@@ -1,0 +1,53 @@
+---
+interface Props {
+    title: string
+    description: string
+    tags: string[]
+    category: 'all' | 'frontend' | 'fullstack' | 'backend'
+    image?: string
+    link?: string
+    height?: 'md' | 'lg'
+}
+
+const {
+    title,
+    description,
+    tags,
+    category,
+    link,
+    image,
+    height = 'md',
+} = Astro.props
+---
+
+<article class="project-item reveal" data-project data-category={category}>
+    <a
+        href={link}
+        target="_blank"
+        class="glass-card block h-full w-full cursor-pointer overflow-hidden p-6 transition-transform duration-500 hover:scale-[104%]"
+    >
+        <div
+            class={`mb-5 overflow-hidden rounded-xl ${height === 'lg' ? 'h-64' : 'h-44'} border border-surface/60 bg-surface-soft`}
+        >
+            {
+                image && (
+                    <img
+                        src={image}
+                        alt={title}
+                        loading="lazy"
+                        class="h-full w-full object-cover"
+                    />
+                )
+            }
+        </div>
+        <h3 class="text-xl font-bold text-foreground">{title}</h3>
+        <p class="mt-3 text-sm leading-relaxed text-muted">{description}</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+            {
+                tags.map((tag) => (
+                    <span class="mono-font text-[10px] text-muted">#{tag}</span>
+                ))
+            }
+        </div>
+    </a>
+</article>

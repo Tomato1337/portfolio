@@ -1,0 +1,354 @@
+---
+export const prerender = true
+
+import Layout from '../../layouts/Layout.astro'
+import Navbar from '../../components/Navbar.astro'
+import HeroSection from '../../components/HeroSection.astro'
+import TomatoIllustration from '../../components/TomatoIllustration.astro'
+import AboutSection from '../../components/AboutSection.astro'
+import ProjectsSection from '../../components/ProjectsSection.astro'
+import ContactSection from '../../components/ContactSection.astro'
+import { isValidLocale, useTranslations } from '../../i18n/utils'
+
+export function getStaticPaths() {
+    return [{ params: { locale: 'en' } }, { params: { locale: 'ru' } }]
+}
+
+const localeParam = Astro.params.locale ?? 'en'
+if (!isValidLocale(localeParam)) {
+    return Astro.redirect('/en/')
+}
+
+const t = useTranslations(localeParam)
+---
+
+<Layout title={t.meta.title} description={t.meta.description}>
+    <div class="fixed inset-0 z-0 pointer-events-none overflow-hidden">
+        <div
+            class="bg-blob-primary absolute top-[-10%] right-[-5%] h-[60vw] w-[60vw] rounded-full blur-[100px]"
+        >
+        </div>
+        <div
+            class="bg-blob-secondary absolute bottom-[-10%] left-[-10%] h-[50vw] w-[50vw] rounded-full blur-[80px]"
+        >
+        </div>
+        <div class="bg-grid absolute inset-0 opacity-60"></div>
+    </div>
+
+    <Navbar />
+
+    <main>
+        <section id="home" class="fullpage-section">
+            <div class="fp-outer">
+                <div class="fp-inner">
+                    <div class="fp-bg">
+                        <div class="section-shell w-full pt-32 pb-16">
+                            <div
+                                class="flex min-h-[calc(100vh-16rem)] flex-row items-center gap-12 lg:gap-20"
+                            >
+                                <HeroSection />
+                                <TomatoIllustration />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <AboutSection />
+        <ProjectsSection />
+        <ContactSection />
+    </main>
+
+    <script>
+        const initializeFullpage = async () => {
+            const gsapModule = await import('gsap')
+            const observerModule = await import('gsap/dist/Observer')
+
+            const gsap = gsapModule.gsap
+            const Observer = observerModule.Observer
+            gsap.registerPlugin(Observer)
+
+            const sections =
+                gsap.utils.toArray<HTMLElement>('.fullpage-section')
+            if (!sections.length) return
+
+            const outerWrappers = gsap.utils.toArray<HTMLElement>(
+                '.fullpage-section .fp-outer',
+            )
+            const innerWrappers = gsap.utils.toArray<HTMLElement>(
+                '.fullpage-section .fp-inner',
+            )
+            const bgWrappers = gsap.utils.toArray<HTMLElement>(
+                '.fullpage-section .fp-bg',
+            )
+
+            const allRevealNodes = gsap.utils.toArray<HTMLElement>(
+                '.fullpage-section .reveal',
+            )
+
+            let currentIndex = -1
+            let animating = false
+
+            const updateNavActive = (index: number) => {
+                const sectionId = sections[index]?.id
+                if (!sectionId) return
+
+                document
+                    .querySelectorAll<HTMLAnchorElement>('.nav-link')
+                    .forEach((link) => {
+                        const isActive =
+                            link.getAttribute('href') === `#${sectionId}`
+                        link.classList.toggle('text-muted', !isActive)
+                        link.classList.toggle('text-white', isActive)
+                        link.classList.toggle('font-medium', !isActive)
+                        link.classList.toggle('font-semibold', isActive)
+                    })
+            }
+
+            const gotoSection = (
+                index: number,
+                direction: number,
+                options?: { resetScroll?: boolean },
+            ) => {
+                const wrappedIndex = gsap.utils.wrap(0, sections.length, index)
+                if (
+                    animating ||
+                    (currentIndex === wrappedIndex && currentIndex >= 0)
+                ) {
+                    return
+                }
+
+                animating = true
+                document.documentElement.dataset.fpAnimating = 'true'
+
+                const fromDirection = direction >= 0 ? 1 : -1
+                const nextSection = sections[wrappedIndex]
+                const nextOuter = outerWrappers[wrappedIndex]
+                const nextInner = innerWrappers[wrappedIndex]
+                const nextBg = bgWrappers[wrappedIndex]
+
+                if (
+                    nextSection.classList.contains('fp-scrollable') &&
+                    options?.resetScroll !== false
+                ) {
+                    nextBg.scrollTop = 0
+                }
+
+                const timeline = gsap.timeline({
+                    defaults: { duration: 0.85, ease: 'power3.inOut' },
+                    onComplete: () => {
+                        animating = false
+                        document.documentElement.dataset.fpAnimating = 'false'
+                    },
+                })
+
+                if (currentIndex >= 0) {
+                    const currentSection = sections[currentIndex]
+                    const currentBg = bgWrappers[currentIndex]
+
+                    timeline.to(
+                        currentBg,
+                        {
+                            yPercent: -14 * fromDirection,
+                            duration: 0.6,
+                            ease: 'power2.inOut',
+                        },
+                        0,
+                    )
+
+                    timeline.to(
+                        currentSection,
+                        {
+                            autoAlpha: 0,
+                            duration: 0.35,
+                            ease: 'power1.out',
+                        },
+                        0.28,
+                    )
+
+                    timeline.set(currentSection, { zIndex: 0 }, 0.66)
+                }
+
+                timeline.set(nextSection, { autoAlpha: 1, zIndex: 1 }, 0)
+
+                timeline.fromTo(
+                    nextOuter,
+                    { yPercent: 100 * fromDirection },
+                    { yPercent: 0 },
+                    0,
+                )
+
+                timeline.fromTo(
+                    nextInner,
+                    { yPercent: -100 * fromDirection },
+                    { yPercent: 0 },
+                    0,
+                )
+
+                timeline.fromTo(
+                    nextBg,
+                    { yPercent: 14 * fromDirection },
+                    {
+                        yPercent: 0,
+                        duration: 0.9,
+                        ease: 'power2.out',
+                    },
+                    0,
+                )
+
+                const reveals =
+                    nextSection.querySelectorAll<HTMLElement>('.reveal')
+                if (reveals.length > 0) {
+                    timeline.set(reveals, { autoAlpha: 0, yPercent: 30 }, 0)
+                    timeline.to(
+                        reveals,
+                        {
+                            autoAlpha: 1,
+                            yPercent: 0,
+                            duration: 0.6,
+                            ease: 'power2.out',
+                            stagger: { each: 0.08, from: 'start' },
+                        },
+                        0.32,
+                    )
+                }
+
+                currentIndex = wrappedIndex
+                updateNavActive(currentIndex)
+                history.replaceState(null, '', `#${nextSection.id}`)
+            }
+
+            const isScrollableSection = (section: HTMLElement | undefined) =>
+                Boolean(section?.classList.contains('fp-scrollable'))
+
+            const getScrollableContent = (section: HTMLElement | undefined) =>
+                section?.querySelector<HTMLElement>('.fp-bg') ?? null
+
+            const atScrollTop = (node: HTMLElement) => node.scrollTop <= 2
+            const atScrollBottom = (node: HTMLElement) =>
+                node.scrollTop + node.clientHeight >= node.scrollHeight - 2
+
+            const handleSectionChange = (direction: number) => {
+                if (animating || currentIndex < 0) return
+
+                const activeSection = sections[currentIndex]
+
+                if (isScrollableSection(activeSection)) {
+                    const scrollNode = getScrollableContent(activeSection)
+                    if (!scrollNode) return
+
+                    if (direction > 0 && !atScrollBottom(scrollNode)) return
+                    if (direction < 0 && !atScrollTop(scrollNode)) return
+                }
+
+                gotoSection(currentIndex + direction, direction)
+            }
+
+            gsap.set(sections, { autoAlpha: 0, zIndex: 0 })
+            gsap.set(outerWrappers, { yPercent: 100 })
+            gsap.set(innerWrappers, { yPercent: -100 })
+            gsap.set(bgWrappers, { yPercent: 14 })
+            gsap.set(allRevealNodes, { autoAlpha: 0, yPercent: 30 })
+
+            const initialHash = window.location.hash
+            const initialIndex =
+                initialHash && initialHash !== '#'
+                    ? sections.findIndex(
+                          (section) => `#${section.id}` === initialHash,
+                      )
+                    : -1
+
+            const startIndex = initialIndex >= 0 ? initialIndex : 0
+            gotoSection(startIndex, startIndex > 0 ? 1 : 0, {
+                resetScroll: true,
+            })
+
+            Observer.create({
+                type: 'wheel,touch',
+                target: window,
+                preventDefault: false,
+                allowClicks: true,
+                tolerance: 12,
+                onUp: () => handleSectionChange(-1),
+                onDown: () => handleSectionChange(1),
+            })
+
+            document
+                .querySelectorAll<HTMLAnchorElement>('a[href^="#"]')
+                .forEach((anchor) => {
+                    anchor.addEventListener('click', (event) => {
+                        if (animating) {
+                            event.preventDefault()
+                            return
+                        }
+
+                        const href = anchor.getAttribute('href')
+                        if (!href || href === '#') return
+
+                        const targetIndex = sections.findIndex(
+                            (section) => `#${section.id}` === href,
+                        )
+                        if (targetIndex < 0) return
+
+                        event.preventDefault()
+                        const direction = targetIndex > currentIndex ? 1 : -1
+                        gotoSection(targetIndex, direction, {
+                            resetScroll: true,
+                        })
+
+                        const mobileMenu =
+                            document.querySelector<HTMLElement>('#mobile-menu')
+                        mobileMenu?.classList.add('hidden')
+                    })
+                })
+
+            const isDesktop = window.matchMedia('(min-width: 768px)').matches
+            if (isDesktop) {
+                const parallaxNodes = gsap.utils.toArray<HTMLElement>(
+                    '[data-parallax-speed]',
+                )
+                const parallaxControllers = parallaxNodes.map((node) => ({
+                    node,
+                    speed: Number(node.dataset.parallaxSpeed ?? '1'),
+                    xTo: gsap.quickTo(node, 'x', {
+                        duration: 0.65,
+                        ease: 'power3.out',
+                    }),
+                    yTo: gsap.quickTo(node, 'y', {
+                        duration: 0.65,
+                        ease: 'power3.out',
+                    }),
+                }))
+
+                window.addEventListener('mousemove', (event) => {
+                    const centerX = window.innerWidth / 2
+                    const centerY = window.innerHeight / 2
+                    const ratioX = (event.clientX - centerX) / centerX
+                    const ratioY = (event.clientY - centerY) / centerY
+
+                    parallaxControllers.forEach((controller) => {
+                        const hostSection =
+                            controller.node.closest<HTMLElement>(
+                                '.fullpage-section',
+                            )
+                        const inActiveSection =
+                            !hostSection ||
+                            hostSection === sections[currentIndex]
+
+                        if (!inActiveSection) {
+                            controller.xTo(0)
+                            controller.yTo(0)
+                            return
+                        }
+
+                        controller.xTo(ratioX * 14 * controller.speed)
+                        controller.yTo(ratioY * 14 * controller.speed)
+                    })
+                })
+            }
+        }
+
+        initializeFullpage()
+    </script>
+</Layout>

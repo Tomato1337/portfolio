@@ -1,0 +1,42 @@
+---
+import { normalizeLocale } from '../i18n/utils'
+
+const currentLocale = normalizeLocale(Astro.currentLocale)
+const locales = ['en', 'ru'] as const
+---
+
+<div
+    class="inline-flex items-center gap-1 rounded-full border border-surface/60 bg-surface/50 p-1 shadow-sm backdrop-blur-md"
+>
+    {
+        locales.map((locale) => {
+            const isActive = currentLocale === locale
+            return (
+                <a
+                    href={`/${locale}/`}
+                    class={`language-link rounded-full px-3 py-1.5 text-xs font-semibold tracking-wide transition-colors ${
+                        isActive
+                            ? 'bg-accent text-white'
+                            : 'text-muted hover:bg-accent/20 hover:text-content'
+                    }`}
+                    data-locale={locale}
+                >
+                    {locale.toUpperCase()}
+                </a>
+            )
+        })
+    }
+</div>
+
+<script>
+    document
+        .querySelectorAll<HTMLAnchorElement>('.language-link')
+        .forEach((link) => {
+            link.addEventListener('click', () => {
+                const locale = link.dataset.locale
+                if (!locale) return
+
+                document.cookie = `lang=${locale}; path=/; max-age=31536000; SameSite=Lax`
+            })
+        })
+</script>

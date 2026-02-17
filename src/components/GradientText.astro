@@ -1,0 +1,230 @@
+---
+interface Props {
+    className?: string
+    colorClasses?: string[]
+    colors?: string[]
+    animationSpeed?: number
+    showBorder?: boolean
+    direction?: 'horizontal' | 'vertical' | 'diagonal'
+    pauseOnHover?: boolean
+    yoyo?: boolean
+}
+
+const {
+    className = '',
+    colorClasses = ['bg-accent', 'bg-accent-strong', 'bg-accent-warm'],
+    colors = [],
+    animationSpeed = 8,
+    showBorder = false,
+    direction = 'horizontal',
+    pauseOnHover = false,
+    yoyo = true,
+} = Astro.props
+
+const convertBgClassToColor = (bgClass: string): string => {
+    const token = bgClass.trim()
+
+    if (!token) return 'var(--color-accent)'
+
+    if (token.startsWith('bg-[') && token.endsWith(']')) {
+        return token.slice(4, -1)
+    }
+
+    if (token.startsWith('bg-')) {
+        return `var(--color-${token.slice(3)})`
+    }
+
+    return token
+}
+
+const safeColorClasses =
+    colorClasses.length > 0
+        ? colorClasses
+        : ['bg-accent', 'bg-accent-strong', 'bg-accent-warm']
+const resolvedColors =
+    colors.length > 0 ? colors : safeColorClasses.map(convertBgClassToColor)
+const gradientAngle =
+    direction === 'horizontal'
+        ? 'to right'
+        : direction === 'vertical'
+          ? 'to bottom'
+          : 'to bottom right'
+const gradientColors = [...resolvedColors, resolvedColors[0]].join(', ')
+const gradientSize =
+    direction === 'horizontal'
+        ? '300% 100%'
+        : direction === 'vertical'
+          ? '100% 300%'
+          : '300% 300%'
+const rootClasses = [
+    'gt-root relative border-none inline-flex max-w-fit items-center justify-center overflow-hidden rounded-[var(--radius-panel)] font-medium transition-shadow duration-500',
+    'text-content',
+    showBorder ? 'px-2 py-1' : '',
+    className,
+]
+    .filter(Boolean)
+    .join(' ')
+---
+
+<span
+    class={rootClasses}
+    data-gradient-text
+    data-speed={String(animationSpeed)}
+    data-direction={direction}
+    data-pause-on-hover={pauseOnHover ? 'true' : 'false'}
+    data-yoyo={yoyo ? 'true' : 'false'}
+    style={`--gt-gradient: linear-gradient(${gradientAngle}, ${gradientColors}); --gt-size: ${gradientSize}; border: none`}
+>
+    {
+        showBorder && (
+            <span
+                class="gt-border rounded-panel"
+                data-gradient-text-border
+                aria-hidden="true"
+            >
+                <span class="gt-border-inner" aria-hidden="true" />
+            </span>
+        )
+    }
+    <span class="gt-content" data-gradient-text-content>
+        <slot />
+    </span>
+</span>
+
+<script>
+    const initGradientText = () => {
+        const nodes = document.querySelectorAll<HTMLElement>(
+            '[data-gradient-text]',
+        )
+
+        nodes.forEach((node) => {
+            if (node.dataset.gtReady === 'true') return
+            node.dataset.gtReady = 'true'
+
+            const contentNode = node.querySelector<HTMLElement>(
+                '[data-gradient-text-content]',
+            )
+            const borderNode = node.querySelector<HTMLElement>(
+                '[data-gradient-text-border]',
+            )
+
+            if (!contentNode) return
+
+            const animationDuration =
+                Math.max(0.1, Number(node.dataset.speed ?? '8')) * 1000
+            const direction = node.dataset.direction ?? 'horizontal'
+            const pauseOnHover = node.dataset.pauseOnHover === 'true'
+            const yoyo = node.dataset.yoyo !== 'false'
+
+            let isPaused = false
+            let elapsed = 0
+            let lastTime: number | null = null
+
+            const applyPosition = (progress: number) => {
+                const value =
+                    direction === 'horizontal'
+                        ? `${progress}% 50%`
+                        : direction === 'vertical'
+                          ? `50% ${progress}%`
+                          : `${progress}% 50%`
+
+                contentNode.style.backgroundPosition = value
+                if (borderNode) borderNode.style.backgroundPosition = value
+            }
+
+            const tick = (time: number) => {
+                if (isPaused) {
+                    lastTime = null
+                    window.requestAnimationFrame(tick)
+                    return
+                }
+
+                if (lastTime === null) {
+                    lastTime = time
+                    window.requestAnimationFrame(tick)
+                    return
+                }
+
+                const deltaTime = time - lastTime
+                lastTime = time
+                elapsed += deltaTime
+
+                let progress
+                if (yoyo) {
+                    const fullCycle = animationDuration * 2
+                    const cycleTime = elapsed % fullCycle
+
+                    progress =
+                        cycleTime < animationDuration
+                            ? (cycleTime / animationDuration) * 100
+                            : 100 -
+                              ((cycleTime - animationDuration) /
+                                  animationDuration) *
+                                  100
+                } else {
+                    progress = ((elapsed / animationDuration) * 100) % 100
+                }
+
+                applyPosition(progress)
+                window.requestAnimationFrame(tick)
+            }
+
+            if (pauseOnHover) {
+                node.addEventListener('mouseenter', () => {
+                    isPaused = true
+                })
+                node.addEventListener('mouseleave', () => {
+                    isPaused = false
+                })
+            }
+
+            applyPosition(0)
+            window.requestAnimationFrame(tick)
+        })
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initGradientText)
+    } else {
+        initGradientText()
+    }
+</script>
+
+<style>
+    .gt-content,
+    .gt-border {
+        background-image: var(--gt-gradient);
+        background-size: var(--gt-size);
+        background-repeat: repeat;
+    }
+
+    .gt-content {
+        position: relative;
+        z-index: 2;
+        display: inline-block;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent;
+        -webkit-text-fill-color: transparent;
+        will-change: background-position;
+    }
+
+    .gt-border {
+        pointer-events: none;
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+    }
+
+    .gt-border-inner {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        z-index: -1;
+        height: calc(100% - 2px);
+        width: calc(100% - 2px);
+        transform: translate(-50%, -50%);
+        border-radius: var(--radius-panel);
+        background: var(--color-background);
+    }
+</style>

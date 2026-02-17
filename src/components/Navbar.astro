@@ -1,0 +1,330 @@
+---
+import LanguageSwitcher from './LanguageSwitcher.astro'
+import ThemeToggle from './ThemeToggle.astro'
+import { useTranslations } from '../i18n/utils'
+import TomatoSvg from './TomatoSvg.astro'
+
+const t = useTranslations(Astro.currentLocale)
+---
+
+<nav id="navbar" class="fixed top-0 z-50 w-full py-5 md:px-12">
+    <div class="flex px-6 md:px-0 w-full items-center justify-between">
+        <a href="#home" class="group flex items-center gap-2">
+            <!-- <div
+                class="flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br from-accent to-accent-strong font-serif text-xl font-bold text-white shadow-lg shadow-accent/30 transition-transform duration-300 group-hover:scale-105"
+            >
+                T
+            </div> -->
+            <TomatoSvg />
+            <span
+                class="text-xl font-bold tracking-tight text-content transition-colors group-hover:text-accent"
+                >Tomato1337<span class="text-accent">.</span></span
+            >
+        </a>
+
+        <div
+            id="navbar-tabs"
+            class="relative transition-all duration-200 hidden items-center p-1 rounded-full border border-surface/60 bg-surface/50 shadow-sm backdrop-blur-md md:flex"
+        >
+            <span
+                id="navbar-tab-indicator"
+                class="pointer-events-none absolute top-1 bottom-1 left-0 rounded-full bg-accent transition-[transform,width] duration-300 ease-out"
+                aria-hidden="true"></span>
+            <a
+                class="relative z-10 transition-colors nav-link p-3 px-6 text-sm shrink-0 whitespace-nowrap rounded-full font-medium text-muted hover:bg-accent/25 hover:text-content"
+                data-section-target="home"
+                href="#home">{t.nav.home}</a
+            >
+            <a
+                class="relative z-10 transition-colors nav-link p-3 px-6 text-sm shrink-0 whitespace-nowrap rounded-full font-medium text-muted hover:bg-accent/25 hover:text-content"
+                data-section-target="about"
+                href="#about">{t.nav.about}</a
+            >
+            <a
+                class="relative z-10 transition-colors nav-link p-3 px-6 text-sm shrink-0 whitespace-nowrap rounded-full font-medium text-muted hover:bg-accent/25 hover:text-content"
+                data-section-target="projects"
+                href="#projects">{t.nav.projects}</a
+            >
+            <a
+                class="relative z-10 transition-colors nav-link p-3 px-6 text-sm shrink-0 whitespace-nowrap rounded-full font-medium text-muted hover:bg-accent/25 hover:text-content"
+                data-section-target="contact"
+                href="#contact">{t.nav.contact}</a
+            >
+        </div>
+
+        <div class="hidden items-center gap-2 md:flex">
+            <ThemeToggle />
+            <LanguageSwitcher />
+        </div>
+
+        <button
+            id="menu-toggle"
+            class="cursor-pointer rounded-xl border border-surface/60 bg-surface/55 p-2 text-content shadow-sm backdrop-blur-md transition-colors hover:bg-surface-soft md:hidden"
+            aria-label={t.nav.openMenu}
+            aria-expanded="false"
+            aria-controls="mobile-menu"
+        >
+            <svg
+                class="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 6h16M4 12h16M4 18h16"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div
+        id="mobile-menu"
+        class="mx-6 mt-3 hidden rounded-3xl border border-surface/70 bg-surface/80 p-3 shadow-lg backdrop-blur-md md:hidden"
+    >
+        <div
+            class="mb-2 px-2 py-1 text-xs font-semibold tracking-wide text-muted"
+        >
+            {t.nav.navigation}
+        </div>
+        <div class="flex flex-col gap-2">
+            <a
+                class="mobile-nav-link rounded-2xl border border-transparent bg-surface/70 px-4 py-3 text-sm font-medium text-content transition-colors hover:border-accent/20 hover:bg-accent/10"
+                data-section-target="home"
+                href="#home">{t.nav.home}</a
+            >
+            <a
+                class="mobile-nav-link rounded-2xl border border-transparent bg-surface/70 px-4 py-3 text-sm font-medium text-content transition-colors hover:border-accent/20 hover:bg-accent/10"
+                data-section-target="about"
+                href="#about">{t.nav.about}</a
+            >
+            <a
+                class="mobile-nav-link rounded-2xl border border-transparent bg-surface/70 px-4 py-3 text-sm font-medium text-content transition-colors hover:border-accent/20 hover:bg-accent/10"
+                data-section-target="projects"
+                href="#projects">{t.nav.projects}</a
+            >
+            <a
+                class="mobile-nav-link rounded-2xl border border-transparent bg-surface/70 px-4 py-3 text-sm font-medium text-content transition-colors hover:border-accent/20 hover:bg-accent/10"
+                data-section-target="contact"
+                href="#contact">{t.nav.contact}</a
+            >
+            <div class="flex items-center gap-2 pt-1">
+                <ThemeToggle />
+                <LanguageSwitcher />
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+    const menuToggle = document.querySelector<HTMLButtonElement>('#menu-toggle')
+    const mobileMenu = document.querySelector<HTMLDivElement>('#mobile-menu')
+    const navLinks = document.querySelectorAll<HTMLAnchorElement>('.nav-link')
+    const mobileNavLinks =
+        document.querySelectorAll<HTMLAnchorElement>('.mobile-nav-link')
+    const desktopQuery = window.matchMedia('(min-width: 768px)')
+    const navTabs = document.querySelector<HTMLElement>('#navbar-tabs')
+    const tabIndicator = document.querySelector<HTMLElement>(
+        '#navbar-tab-indicator',
+    )
+    const isFullpageAnimating = () =>
+        document.documentElement.dataset.fpAnimating === 'true'
+
+    const clearNavLinkTransforms = () => {
+        navLinks.forEach((link) => {
+            link.style.transform = ''
+        })
+    }
+
+    const getActiveNavLink = () =>
+        Array.from(navLinks).find(
+            (link) =>
+                link.classList.contains('text-white') ||
+                link.classList.contains('font-semibold'),
+        )
+
+    const moveTabIndicator = (
+        targetLink: HTMLAnchorElement | undefined,
+        immediate = false,
+    ) => {
+        if (!desktopQuery.matches || !navTabs || !tabIndicator || !targetLink) {
+            return
+        }
+
+        const containerRect = navTabs.getBoundingClientRect()
+        const targetRect = targetLink.getBoundingClientRect()
+        const offsetX = targetRect.left - containerRect.left
+
+        if (immediate) {
+            tabIndicator.style.transition = 'none'
+        } else {
+            tabIndicator.style.transition =
+                'transform 300ms ease-out, width 300ms ease-out'
+        }
+
+        tabIndicator.style.width = `${targetRect.width}px`
+        tabIndicator.style.transform = `translateX(${offsetX}px)`
+        tabIndicator.style.opacity = '1'
+
+        if (immediate) {
+            window.requestAnimationFrame(() => {
+                tabIndicator.style.transition =
+                    'transform 300ms ease-out, width 300ms ease-out'
+            })
+        }
+    }
+
+    const initializeMagneticLinks = () => {
+        navLinks.forEach((link) => {
+            if (link.dataset.magneticInitialized === 'true') {
+                return
+            }
+
+            link.dataset.magneticInitialized = 'true'
+
+            link.addEventListener('pointermove', (event) => {
+                if (!desktopQuery.matches) {
+                    link.style.transform = ''
+                    return
+                }
+
+                const rect = link.getBoundingClientRect()
+                const centerX = rect.left + rect.width / 2
+                const centerY = rect.top + rect.height / 2
+                const offsetX = event.clientX - centerX
+                const offsetY = event.clientY - centerY
+                const maxTranslate = 10
+                const clampedX = Math.max(
+                    -maxTranslate,
+                    Math.min(maxTranslate, offsetX * 0.2),
+                )
+                const clampedY = Math.max(
+                    -maxTranslate,
+                    Math.min(maxTranslate, offsetY * 0.2),
+                )
+
+                link.style.transform = `translate(${clampedX}px, ${clampedY}px) scale(1.03)`
+            })
+
+            const resetMagnetic = () => {
+                if (!desktopQuery.matches) {
+                    link.style.transform = ''
+                    return
+                }
+
+                const currentTransform =
+                    getComputedStyle(link).transform === 'none'
+                        ? 'translate(0px, 0px) scale(1)'
+                        : getComputedStyle(link).transform
+
+                link.animate(
+                    [
+                        { transform: currentTransform },
+                        { transform: 'translate(0px, 0px) scale(1.02)' },
+                        { transform: 'translate(0px, 0px) scale(1)' },
+                    ],
+                    {
+                        duration: 300,
+                        easing: 'cubic-bezier(0.22, 1.4, 0.36, 1)',
+                    },
+                ).addEventListener('finish', () => {
+                    link.style.transform = ''
+                })
+            }
+
+            link.addEventListener('pointerleave', resetMagnetic)
+            link.addEventListener('blur', resetMagnetic)
+        })
+    }
+
+    const handleBreakpointChange = () => {
+        if (!desktopQuery.matches) {
+            clearNavLinkTransforms()
+            if (tabIndicator) {
+                tabIndicator.style.opacity = '0'
+            }
+            return
+        }
+
+        moveTabIndicator(getActiveNavLink() ?? navLinks[0], true)
+    }
+
+    initializeMagneticLinks()
+    handleBreakpointChange()
+
+    navLinks.forEach((link) => {
+        link.addEventListener('click', () => {
+            if (isFullpageAnimating()) {
+                return
+            }
+            moveTabIndicator(link)
+        })
+    })
+
+    if (navTabs && tabIndicator) {
+        const navObserver = new MutationObserver(() => {
+            moveTabIndicator(getActiveNavLink() ?? navLinks[0])
+        })
+
+        navLinks.forEach((link) => {
+            navObserver.observe(link, {
+                attributes: true,
+                attributeFilter: ['class'],
+            })
+        })
+    }
+
+    window.addEventListener('resize', () => {
+        moveTabIndicator(getActiveNavLink() ?? navLinks[0], true)
+    })
+
+    desktopQuery.addEventListener('change', handleBreakpointChange)
+
+    const closeMobileMenu = () => {
+        mobileMenu?.classList.add('hidden')
+        menuToggle?.setAttribute('aria-expanded', 'false')
+    }
+
+    menuToggle?.addEventListener('click', () => {
+        if (!mobileMenu) {
+            return
+        }
+
+        const isHidden = mobileMenu.classList.contains('hidden')
+        mobileMenu.classList.toggle('hidden')
+        menuToggle?.setAttribute('aria-expanded', isHidden ? 'true' : 'false')
+    })
+
+    mobileNavLinks.forEach((link) => {
+        link.addEventListener('click', () => {
+            closeMobileMenu()
+        })
+    })
+
+    document.addEventListener('click', (event) => {
+        if (!mobileMenu || !menuToggle) {
+            return
+        }
+
+        const target = event.target as Node
+        const clickedInsideMenu = mobileMenu.contains(target)
+        const clickedToggle = menuToggle.contains(target)
+
+        if (!clickedInsideMenu && !clickedToggle) {
+            closeMobileMenu()
+        }
+    })
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            closeMobileMenu()
+        }
+    })
+
+    desktopQuery.addEventListener('change', (event) => {
+        if (event.matches) {
+            closeMobileMenu()
+        }
+    })
+</script>

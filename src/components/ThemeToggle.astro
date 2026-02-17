@@ -1,0 +1,136 @@
+---
+import { useTranslations } from '../i18n/utils'
+
+const t = useTranslations(Astro.currentLocale)
+---
+
+<button
+    type="button"
+    data-theme-toggle
+    data-label-default={t.nav.toggleTheme}
+    data-label-light={t.nav.themeLight}
+    data-label-dark={t.nav.themeDark}
+    class="inline-flex cursor-pointer items-center justify-center rounded-full border border-surface/60 bg-surface/50 p-2 text-content shadow-sm backdrop-blur-md transition-colors hover:bg-surface-soft"
+    aria-label={t.nav.toggleTheme}
+    title={t.nav.toggleTheme}
+    aria-pressed="false"
+>
+    <span class="sr-only">{t.nav.toggleTheme}</span>
+    <svg
+        data-theme-icon="sun"
+        class="h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+    >
+        <circle cx="12" cy="12" r="4"></circle>
+        <path
+            d="M12 2v2.25M12 19.75V22M4.22 4.22l1.59 1.59M18.19 18.19l1.59 1.59M2 12h2.25M19.75 12H22M4.22 19.78l1.59-1.59M18.19 5.81l1.59-1.59"
+        ></path>
+    </svg>
+    <svg
+        data-theme-icon="moon"
+        class="hidden h-5 w-5"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+    >
+        <path d="M20.5 14.5A8.5 8.5 0 1 1 9.5 3.5 7 7 0 0 0 20.5 14.5z"></path>
+    </svg>
+</button>
+
+<script>
+    const storageKey = 'theme'
+    const root = document.documentElement
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+
+    const buttons = Array.from(
+        document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]'),
+    )
+
+    const getStoredTheme = () => {
+        const value = window.localStorage.getItem(storageKey)
+        return value === 'dark' || value === 'light' ? value : null
+    }
+
+    const getPreferredTheme = () => {
+        const storedTheme = getStoredTheme()
+        if (storedTheme) {
+            return storedTheme
+        }
+
+        return mediaQuery.matches ? 'dark' : 'light'
+    }
+
+    const updateButtons = (theme: 'dark' | 'light') => {
+        buttons.forEach((button) => {
+            const sunIcon = button.querySelector<SVGElement>(
+                '[data-theme-icon="sun"]',
+            )
+            const moonIcon = button.querySelector<SVGElement>(
+                '[data-theme-icon="moon"]',
+            )
+            const lightLabel = button.dataset.labelLight
+            const darkLabel = button.dataset.labelDark
+            const defaultLabel = button.dataset.labelDefault
+
+            const isDark = theme === 'dark'
+            button.setAttribute('aria-pressed', isDark ? 'true' : 'false')
+
+            if (sunIcon && moonIcon) {
+                sunIcon.classList.toggle('hidden', isDark)
+                moonIcon.classList.toggle('hidden', !isDark)
+            }
+
+            const nextLabel = isDark ? lightLabel : darkLabel
+            const resolvedLabel = nextLabel || defaultLabel || 'Toggle theme'
+            button.setAttribute('aria-label', resolvedLabel)
+            button.setAttribute('title', resolvedLabel)
+        })
+    }
+
+    const applyTheme = (
+        theme: 'dark' | 'light',
+        options?: { persist?: boolean },
+    ) => {
+        root.classList.toggle('dark', theme === 'dark')
+        root.dataset.theme = theme
+
+        if (options?.persist) {
+            window.localStorage.setItem(storageKey, theme)
+        }
+
+        updateButtons(theme)
+    }
+
+    const currentTheme = root.classList.contains('dark') ? 'dark' : 'light'
+    applyTheme(currentTheme)
+
+    buttons.forEach((button) => {
+        if (button.dataset.themeInitialized === 'true') {
+            return
+        }
+
+        button.dataset.themeInitialized = 'true'
+
+        button.addEventListener('click', () => {
+            const nextTheme = root.classList.contains('dark') ? 'light' : 'dark'
+            applyTheme(nextTheme, { persist: true })
+            root.classList.add('theme-transition')
+        })
+    })
+
+    if (!getStoredTheme()) {
+        mediaQuery.addEventListener('change', (event) => {
+            applyTheme(event.matches ? 'dark' : 'light')
+        })
+    }
+</script>

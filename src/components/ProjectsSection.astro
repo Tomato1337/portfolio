@@ -1,0 +1,151 @@
+---
+import ProjectCard from './ProjectCard.astro'
+import GradientText from './GradientText.astro'
+import { useTranslations } from '../i18n/utils'
+import memologyImage from '../assets/projects/memology.png'
+import aviagrantImage from '../assets/projects/aviagrant.png'
+import hrHubImage from '../assets/projects/hrhub.png'
+import shopixImage from '../assets/projects/shopix.png'
+import medidashImage from '../assets/projects/medidash.png'
+
+const t = useTranslations(Astro.currentLocale)
+
+const projectImages = {
+    memology: memologyImage.src,
+    aviagrant: aviagrantImage.src,
+    hrhub: hrHubImage.src,
+    shopix: shopixImage.src,
+    medidash: medidashImage.src,
+} as const
+---
+
+<section id="projects" class="fullpage-section fp-scrollable">
+    <div class="fp-outer">
+        <div class="fp-inner">
+            <div class="fp-bg items-start">
+                <div class="section-shell w-full pt-32 pb-24">
+                    <header class="mb-14 space-y-4 reveal">
+                        <p
+                            class="mono-font text-sm font-semibold tracking-wide text-accent"
+                        >
+                            git checkout projects
+                        </p>
+                        <h2
+                            class="text-5xl font-black leading-tight tracking-tighter text-foreground md:text-7xl"
+                        >
+                            {t.projects.headingTop}<br />
+                            <GradientText className="inline-block"
+                                >{t.projects.headingBottom}</GradientText
+                            >
+                        </h2>
+                        <p
+                            class="mono-font max-w-2xl text-base leading-relaxed text-muted"
+                        >
+                            [info] {t.projects.info}
+                        </p>
+                    </header>
+
+                    <div
+                        class="mb-10 flex flex-wrap items-center gap-3 mono-font text-xs"
+                    >
+                        {
+                            t.projects.filters.map((filter) => (
+                                <button
+                                    class={`cursor-pointer filter-btn btn-secondary px-5 py-2 text-xs ${filter.key === 'all' ? 'bg-foreground text-background' : ''}`}
+                                    data-filter={filter.key}
+                                >
+                                    {filter.label}
+                                </button>
+                            ))
+                        }
+                    </div>
+
+                    <div class="masonry-grid">
+                        {
+                            t.projects.items.map((project) => (
+                                <ProjectCard
+                                    title={project.title}
+                                    description={project.description}
+                                    link={project.link}
+                                    tags={project.tags}
+                                    category={project.category}
+                                    height={project.height}
+                                    image={
+                                        project.imageKey
+                                            ? projectImages[project.imageKey]
+                                            : undefined
+                                    }
+                                />
+                            ))
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    const projectsSection = document.querySelector<HTMLElement>('#projects')
+
+    if (
+        projectsSection &&
+        projectsSection.dataset.filterInitialized !== 'true'
+    ) {
+        projectsSection.dataset.filterInitialized = 'true'
+
+        const buttons =
+            projectsSection.querySelectorAll<HTMLButtonElement>('.filter-btn')
+        const projects =
+            projectsSection.querySelectorAll<HTMLElement>('[data-project]')
+        let pendingTimer: number | null = null
+        let pendingFilter: string = 'all'
+
+        const applyActiveButton = (filter: string) => {
+            buttons.forEach((item) => {
+                const active = (item.dataset.filter ?? 'all') === filter
+                item.classList.toggle('bg-foreground', active)
+                item.classList.toggle('text-background', active)
+                item.classList.toggle('text-content', !active)
+            })
+        }
+
+        const applyFilter = (filter: string) => {
+            projects.forEach((card) => {
+                const cardCategory = card.dataset.category
+                const visible = filter === 'all' || cardCategory === filter
+
+                card.style.display = visible ? '' : 'none'
+                card.style.opacity = '1'
+            })
+
+            if (filter === 'all') {
+                projects.forEach((card) => {
+                    card.style.display = ''
+                    card.style.opacity = '1'
+                })
+            }
+        }
+
+        const scheduleFilter = (filter: string) => {
+            pendingFilter = filter
+
+            if (pendingTimer !== null) {
+                clearTimeout(pendingTimer)
+            }
+
+            pendingTimer = window.setTimeout(() => {
+                pendingTimer = null
+                applyFilter(pendingFilter)
+            }, 0)
+        }
+
+        buttons.forEach((button) => {
+            button.addEventListener('click', () => {
+                const currentFilter = button.dataset.filter ?? 'all'
+                applyActiveButton(currentFilter)
+                scheduleFilter(currentFilter)
+            })
+        })
+    }
+</script>
