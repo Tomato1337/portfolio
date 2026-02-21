@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://tomato1337.site/sitemap.xml
