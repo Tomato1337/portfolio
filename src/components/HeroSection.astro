@@ -5,7 +5,7 @@ import { useTranslations } from '../i18n/utils'
 const t = useTranslations(Astro.currentLocale)
 ---
 
-<section class="w-full lg:w-1/2 space-y-8" data-parallax-speed="1">
+<section class="w-full lg:w-1/2 space-y-4 md:space-y-8" data-parallax-speed="1">
     <div class="chip-soft">
         <span class="relative flex h-2 w-2">
             <span
@@ -17,9 +17,9 @@ const t = useTranslations(Astro.currentLocale)
         {t.hero.status}
     </div>
 
-    <div class="space-y-2">
+    <div class="space-y-1 md:space-y-2">
         <h2
-            class="hero-line text-4xl font-light tracking-tight text-content md:text-5xl lg:text-6xl"
+            class="hero-line text-3xl sm:text-4xl font-light tracking-tight text-content md:text-5xl lg:text-6xl"
         >
             {t.hero.hello}
             <span class="serif-font italic font-semibold text-accent"
@@ -27,7 +27,7 @@ const t = useTranslations(Astro.currentLocale)
             >
         </h2>
         <h1
-            class="hero-line text-6xl font-black leading-[0.9] tracking-tighter text-foreground md:text-7xl lg:text-8xl"
+            class="hero-line text-5xl sm:text-6xl font-black leading-[0.9] tracking-tighter text-foreground md:text-7xl lg:text-8xl"
         >
             {t.hero.roleTop}
             <br />
@@ -37,13 +37,13 @@ const t = useTranslations(Astro.currentLocale)
         </h1>
     </div>
 
-    <div class="glass-panel max-w-lg border-l-4 border-l-accent p-6">
-        <p class="text-lg leading-relaxed text-muted">
+    <div class="glass-panel max-w-lg border-l-4 border-l-accent p-4 md:p-6">
+        <p class="text-sm sm:text-base md:text-lg leading-relaxed text-muted">
             {t.hero.description}
         </p>
     </div>
 
-    <div class="flex flex-wrap items-center gap-4 pt-2">
+    <div class="flex flex-wrap items-center gap-2 md:gap-4 pt-2">
         <a href="#projects" data-goto-section="projects" class="btn-primary">
             {t.hero.viewWork}
             <span aria-hidden="true">→</span>
@@ -53,7 +53,7 @@ const t = useTranslations(Astro.currentLocale)
         </a>
     </div>
 
-    <div class="flex items-center gap-3 pt-3 text-muted">
+    <div class="flex items-center gap-3 text-muted">
         <span class="h-px w-12 bg-border-soft"></span>
         <a
             href="https://github.com/Tomato1337"

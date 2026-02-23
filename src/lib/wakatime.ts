@@ -106,8 +106,13 @@ const normalizeStats = (
 }
 
 const fetchFromApi = async (): Promise<WakatimeStats | null> => {
-    const apiKey = process.env.WAKATIME_API_KEY
-    if (!apiKey) return null
+    const apiKey = import.meta.env.WAKATIME_API_KEY
+    if (!apiKey) {
+        console.error(
+            'WAKATIME_API_KEY is not set in environment variables. Skipping Wakatime stats fetch, using fallback stats.',
+        )
+        return null
+    }
 
     const token = Buffer.from(apiKey).toString('base64')
     const response = await fetch(
@@ -118,8 +123,10 @@ const fetchFromApi = async (): Promise<WakatimeStats | null> => {
             },
         },
     )
-
     if (!response.ok) {
+        console.error(
+            `Failed to fetch Wakatime stats: ${response.status} ${response.statusText}. Using fallback stats.`,
+        )
         return null
     }
 
@@ -140,8 +147,8 @@ export const fetchWakatimeStats = async (): Promise<WakatimeStats> => {
             await writeCache(freshStats)
             return freshStats
         }
-    } catch {
-        // noop
+    } catch (error) {
+        console.error('Error fetching Wakatime stats:', error)
     }
 
     if (cached) {
@@ -150,8 +157,8 @@ export const fetchWakatimeStats = async (): Promise<WakatimeStats> => {
 
     try {
         await writeCache(FALLBACK_STATS)
-    } catch {
-        // noop
+    } catch (error) {
+        console.error('Error writing fallback Wakatime stats to cache:', error)
     }
 
     return FALLBACK_STATS

@@ -7,14 +7,17 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
     site: 'https://tomato1337.site',
     output: 'server',
+
     adapter: node({
         mode: 'standalone',
     }),
+
     i18n: {
         locales: ['en', 'ru'],
         defaultLocale: 'en',
         routing: 'manual',
     },
+
     vite: {
         plugins: [tailwindcss()],
     },

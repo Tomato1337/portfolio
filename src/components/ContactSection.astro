@@ -9,10 +9,12 @@ const t = useTranslations(Astro.currentLocale)
         <div class="fp-inner">
             <div class="fp-bg items-start">
                 <div
-                    class="section-shell flex min-h-full w-full flex-col pt-32 pb-10"
+                    class="section-shell flex min-h-full w-full flex-col pt-16 pb-10"
                 >
-                    <div class="grid flex-1 items-center gap-12 lg:grid-cols-2">
-                        <div class="space-y-4 reveal">
+                    <div
+                        class="grid flex-1 items-center gap-2 md:gap-12 lg:grid-cols-2"
+                    >
+                        <div class="space-y-2 md:space-y-4 reveal">
                             <p
                                 class="mono-font text-sm font-semibold tracking-wide text-accent"
                             >
@@ -49,7 +51,7 @@ const t = useTranslations(Astro.currentLocale)
                         </div>
                     </div>
 
-                    <footer>
+                    <footer class="mt-8 md:mt-0">
                         <div
                             class="glass-panel flex items-center justify-between px-5 py-3 text-xs mono-font text-muted"
                         >
